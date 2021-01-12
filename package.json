@@ -28,7 +28,9 @@
   "homepage": "https://github.com/TimDaub/kloi#readme",
   "dependencies": {
     "import-local": "3.0.2",
-    "preact-render-to-string": "5.1.12"
+    "meow": "9.0.0",
+    "preact-render-to-string": "5.1.12",
+    "yup": "0.32.8"
   },
   "devDependencies": {
     "ava": "3.15.0",
