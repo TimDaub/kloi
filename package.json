@@ -1,0 +1,37 @@
+{
+  "name": "kloi",
+  "version": "0.0.1",
+  "description": "kloi is a tiny static site generator using preact",
+  "main": "src/index.js",
+  "bin": "cli.js",
+  "scripts": {
+    "test": "ava --verbose --serial"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/TimDaub/kloi.git"
+  },
+  "keywords": [
+    "preact",
+    "react",
+    "static",
+    "site",
+    "generator",
+    "static",
+    "tiny"
+  ],
+  "author": "Tim Daubenschütz <tim@daubenschuetz.de> (https://timdaub.github.io)",
+  "license": "GPL-3.0-only",
+  "bugs": {
+    "url": "https://github.com/TimDaub/kloi/issues"
+  },
+  "homepage": "https://github.com/TimDaub/kloi#readme",
+  "dependencies": {
+    "import-local": "3.0.2",
+    "preact-render-to-string": "5.1.12"
+  },
+  "devDependencies": {
+    "ava": "3.15.0",
+    "proxyquire": "2.1.3"
+  }
+}
