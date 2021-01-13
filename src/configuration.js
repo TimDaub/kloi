@@ -38,6 +38,8 @@ function loadConfig() {
     }
   }
 
+  config = { ...config, PROJECT_DIR };
+
   console.info(`Successfully loaded config file at: ${configPath}`);
   return config;
 }
