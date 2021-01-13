@@ -6,7 +6,7 @@ const { copyFileSync, unlinkSync, existsSync, writeFileSync } = require("fs");
 const yup = require("yup");
 
 const { ConfigError } = require("../src/errors.js");
-const { CONFIG_FILE_NAME, CONFIG_SCHEMA } = require("../src/index.js");
+const { CONFIG_FILE_NAME, CONFIG_SCHEMA } = require("../src/configuration.js");
 
 const TEST_FOLDER = path.resolve(__dirname, "./virtual_project");
 const configPath = `${TEST_FOLDER}/${CONFIG_FILE_NAME}`;
@@ -22,7 +22,7 @@ const cleanup = t => {
 test.afterEach.always(cleanup);
 
 test("that loading a config throws a specific error when none is available", async t => {
-  const { loadConfig } = proxyquire("../src/index.js", {
+  const { loadConfig } = proxyquire("../src/configuration.js", {
     process: {
       cwd: () => path.resolve(__dirname, TEST_FOLDER)
     }
@@ -34,7 +34,7 @@ test("that loading a config throws a specific error when none is available", asy
 });
 
 test("that regular config can be loaded", async t => {
-  const { loadConfig } = proxyquire("../src/index.js", {
+  const { loadConfig } = proxyquire("../src/configuration.js", {
     process: {
       cwd: () => path.resolve(__dirname, TEST_FOLDER)
     }
@@ -52,7 +52,7 @@ test("that regular config can be loaded", async t => {
 });
 
 test("that template config can be copied", t => {
-  const { copyConfig } = proxyquire("../src/index.js", {
+  const { copyConfig } = proxyquire("../src/configuration.js", {
     process: {
       cwd: () => path.resolve(__dirname, TEST_FOLDER)
     }
@@ -68,7 +68,7 @@ test("if template config is valid according to schema", async t => {
 });
 
 test("if init tries loading a config but creates it if none is existent", async t => {
-  const { init } = proxyquire("../src/index.js", {
+  const { init } = proxyquire("../src/configuration.js", {
     process: {
       cwd: () => path.resolve(__dirname, TEST_FOLDER)
     }
@@ -81,7 +81,7 @@ test("if init tries loading a config but creates it if none is existent", async 
 });
 
 test("if init loads already existing config and doesn't create new one", async t => {
-  const { init } = proxyquire("../src/index.js", {
+  const { init } = proxyquire("../src/configuration.js", {
     process: {
       cwd: () => path.resolve(__dirname, TEST_FOLDER)
     }
@@ -100,7 +100,7 @@ test("if init loads already existing config and doesn't create new one", async t
 });
 
 test("if init throws an error when config file has invalid schema", async t => {
-  const { init } = proxyquire("../src/index.js", {
+  const { init } = proxyquire("../src/configuration.js", {
     process: {
       cwd: () => path.resolve(__dirname, TEST_FOLDER)
     }

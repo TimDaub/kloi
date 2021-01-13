@@ -1,6 +1,6 @@
 // @format
 const meow = require("meow");
-const { init } = require("./index.js");
+const { init } = require("./configuration.js");
 
 const cli = meow(
   `

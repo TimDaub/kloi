@@ -2,7 +2,7 @@
   "name": "kloi",
   "version": "0.0.1",
   "description": "kloi is a tiny static site generator using preact",
-  "main": "src/index.js",
+  "main": "cli.js",
   "bin": "cli.js",
   "scripts": {
     "test": "ava --verbose --serial"
