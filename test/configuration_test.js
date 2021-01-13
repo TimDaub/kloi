@@ -63,7 +63,7 @@ test("that template config can be copied", t => {
 });
 
 test("if template config is valid according to schema", async t => {
-  const config = require(`../src/templates/${CONFIG_FILE_NAME}`);
+  const config = require("esm")(module)(`../src/templates/${CONFIG_FILE_NAME}`);
   t.true(await CONFIG_SCHEMA.isValid(config));
 });
 

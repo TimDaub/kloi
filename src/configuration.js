@@ -23,7 +23,7 @@ function loadConfig() {
 
   let config;
   try {
-    config = require(configPath);
+    config = require("esm")(module)(configPath);
   } catch (err) {
     const msg = err.toString();
     if (
@@ -79,8 +79,8 @@ async function init() {
   try {
     validationResult = await CONFIG_SCHEMA.validate(config);
   } catch (err) {
-      throw err;
-      process.exit(1);
+    throw err;
+    process.exit(1);
   }
 
   return validationResult;
