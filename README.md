@@ -25,9 +25,6 @@
 
 ## Usage
 
-For now, [check out the sample
-project](https://github.com/TimDaub/kloi-sample-project).
-
 [WIP]
 
 ## License
