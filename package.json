@@ -3,8 +3,10 @@
   "version": "0.0.1",
   "description": "kloi is a tiny toolkit for building simple static sites",
   "main": "src/index.js",
-  "engines" : { "node" : ">=13.2.0"},
-  "engineStrict" : true,
+  "engines": {
+    "node": ">=13.2.0"
+  },
+  "engineStrict": true,
   "scripts": {
     "test": "ava --verbose --serial"
   },
@@ -35,6 +37,7 @@
   },
   "homepage": "https://github.com/TimDaub/kloi#readme",
   "dependencies": {
+    "directory-tree": "2.2.5",
     "yup": "0.32.8"
   },
   "devDependencies": {
