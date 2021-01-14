@@ -1,12 +1,8 @@
 {
   "name": "kloi",
   "version": "0.0.1",
-  "description": "kloi is a tiny static site generator using preact",
-  "main": "cli.js",
-  "module": "main.js",
-  "bin": {
-    "kloi": "cli.js"
-  },
+  "description": "kloi is a tiny toolkit for building simple static sites",
+  "main": "src/index.mjs",
   "scripts": {
     "test": "ava --verbose --serial"
   },
@@ -15,13 +11,15 @@
     "url": "git+ssh://git@github.com/TimDaub/kloi.git"
   },
   "keywords": [
+    "toolkit",
     "preact",
     "react",
     "static",
     "site",
     "generator",
     "static",
-    "tiny"
+    "tiny",
+    "simple"
   ],
   "author": "Tim Daubenschütz <tim@daubenschuetz.de> (https://timdaub.github.io)",
   "license": "GPL-3.0-only",
@@ -42,10 +40,5 @@
   },
   "directories": {
     "test": "test"
-  },
-  "esm": {
-    "cjs": {
-      "dedefault": true
-    }
   }
 }
