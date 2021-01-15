@@ -10,7 +10,7 @@ import {
 } from "fs";
 import ava from "ava";
 
-import { readDirectoryTree } from "../src/build.mjs";
+import { loadDirectoryTree } from "../src/build.mjs";
 
 const test = ava.serial;
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -23,19 +23,39 @@ test.afterEach.always(t => {
   writeFileSync(`${TEST_FOLDER}/.keep`, "");
 });
 
-test("if tree folder structure is parsed correctly", t => {
-  writeFileSync(`${TEST_FOLDER}/testfile.js`, "testfile");
-  mkdirSync(`${TEST_FOLDER}/testdir`);
-  writeFileSync(`${TEST_FOLDER}/testdir/testfile2.js`, "testfile2");
-
-  const projectStruct = readDirectoryTree(TEST_FOLDER);
-  t.is(projectStruct.children.length, 3);
-
-  const testDir = projectStruct.children.find(
-    elem => elem.type === "directory"
+test("if tree folder structure is parsed correctly", async t => {
+  writeFileSync(
+    `${TEST_FOLDER}/index.mjs`,
+    `
+    const hello = "world";
+    export default hello;
+  `
   );
-  t.is(testDir.children.length, 1);
+  mkdirSync(`${TEST_FOLDER}/subdir`);
+  writeFileSync(
+    `${TEST_FOLDER}/subdir/subdirfile.mjs`,
+    `
+    const hello = "subdir";
+    export default hello;
+  `
+  );
 
-  t.truthy(projectStruct.children.find(({ name }) => name === "testfile.js"));
-  t.truthy(testDir.children.find(({ name }) => name === "testfile2.js"));
+  const projectStruct = await loadDirectoryTree(TEST_FOLDER, {
+    extensions: /\.mjs/
+  });
+  t.is(projectStruct.children.length, 2);
+
+  const subDir = projectStruct.children.find(elem => elem.type === "directory");
+  t.is(subDir.children.length, 1);
+  const indexFile = projectStruct.children.find(
+    ({ name }) => name === "index.mjs"
+  );
+  t.truthy(indexFile);
+  t.true(indexFile.module === "world");
+
+  const subdirFile = subDir.children.find(
+    ({ name }) => name === "subdirfile.mjs"
+  );
+  t.truthy(subdirFile);
+  t.true(subdirFile.module === "subdir");
 });

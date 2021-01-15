@@ -2,7 +2,7 @@
   "name": "kloi",
   "version": "0.0.1",
   "description": "kloi is a tiny toolkit for building simple static sites",
-  "main": "src/index.js",
+  "main": "src/index.mjs",
   "engines": {
     "node": ">=13.2.0"
   },
@@ -11,6 +11,9 @@
     "test": "ava --verbose --serial"
   },
   "ava": {
+    "nodeArguments": [
+      "--loader=quibble"
+    ],
     "files": [
       "!test/virtual_project/*"
     ]
@@ -41,7 +44,8 @@
     "yup": "0.32.8"
   },
   "devDependencies": {
-    "ava": "3.15.0"
+    "ava": "3.15.0",
+    "quibble": "0.6.5"
   },
   "directories": {
     "test": "test"

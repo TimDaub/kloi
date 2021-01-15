@@ -4,12 +4,14 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { copyFileSync, unlinkSync, existsSync, writeFileSync } from "fs";
 import yup from "yup";
+import quibble from "quibble";
 
 import { ConfigError } from "../src/errors.mjs";
 import {
   loadConfig,
   CONFIG_FILE_NAME,
-  CONFIG_SCHEMA
+  CONFIG_SCHEMA,
+  validateConfig
 } from "../src/configuration.mjs";
 
 const test = ava.serial;
@@ -49,9 +51,44 @@ test("that a regular config can be loaded", async t => {
 test("that a config can be validated according to a schema", async t => {
   const config = {
     directories: {
-      pages: "./src/pages"
+      pages: {
+        path: "./src/pages",
+        options: {
+          extensions: /\.mjs/
+        }
+      }
     }
   };
 
   t.true(await CONFIG_SCHEMA.isValid(config));
+});
+
+test("if config can be validated with function", async t => {
+  const config = {
+    directories: {
+      pages: {
+        path: "./src/pages",
+        options: {
+          extensions: /\.mjs/
+        }
+      }
+    }
+  };
+
+  await validateConfig(config);
+  t.pass();
+});
+
+test("if incorrect config throws validation error", async t => {
+  const config = {
+    bogus: "hello"
+  };
+  
+  const processMock = {
+    exit: code => t.true(code === 1)
+  };
+
+  await quibble.esm("process", processMock, processMock);
+  const configuration = await import("../src/configuration.mjs");
+  await configuration.validateConfig(config);
 });
