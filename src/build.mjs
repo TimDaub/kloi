@@ -2,14 +2,11 @@
 import process from "process";
 import path from "path";
 import crypto from "crypto";
-
-import dirTree from "directory-tree";
+import tree from "directory-tree";
 
 import { NotImplementedError } from "./errors.mjs";
 
-function readDirectoryTree(path, options) {
-  return dirTree(path, options);
-}
+export { tree };
 
 const cache = new Map();
 // TODO: Figure out if we should use "clear-module" here.
@@ -39,23 +36,37 @@ export function labelFile(name) {
   }
 }
 
-async function traverse(files) {
-  for (let file of files) {
-    if (file.type === "directory") {
-      await traverse(file.children);
-    } else {
-      file.absolutePath = path.resolve(process.cwd(), file.path);
-      file.label = labelFile(file.name);
+export async function* traverse(files) {
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
 
-      const uncachedPath = getNewToken(file.absolutePath);
-      file.module = (await import(uncachedPath)).default;
+    if (file.type === "directory") {
+      files = files.concat(file.children);
+    } else {
+      yield file;
     }
   }
-  return files;
 }
 
-export async function loadDirectoryTree(path, options) {
-  let tree = dirTree(path, options);
-  tree.children = await traverse(tree.children);
-  return tree;
+export async function load(file) {
+  file.absolutePath = path.resolve(process.cwd(), file.path);
+  file.label = labelFile(file.name);
+
+  const uncachedPath = getNewToken(file.absolutePath);
+  file.module = (await import(uncachedPath)).default;
+
+  return file;
+}
+
+export async function loadDir(path, options) {
+  let dirTree = tree(path, options);
+  const fileIterator = await traverse(dirTree.children);
+
+  let res = await fileIterator.next();
+  while (!res.done) {
+    res.value = await load(res.value);
+    res = await fileIterator.next();
+  }
+
+  return dirTree;
 }

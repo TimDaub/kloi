@@ -10,7 +10,7 @@ import {
 } from "fs";
 import ava from "ava";
 
-import { loadDirectoryTree, labelFile } from "../src/build.mjs";
+import { loadDir, labelFile } from "../src/build.mjs";
 
 const test = ava.serial;
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -40,7 +40,7 @@ test("if tree folder structure is parsed correctly", async t => {
   `
   );
 
-  const projectStruct = await loadDirectoryTree(TEST_FOLDER, {
+  const projectStruct = await loadDir(TEST_FOLDER, {
     extensions: /\.mjs/
   });
   t.is(projectStruct.children.length, 2);

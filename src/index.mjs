@@ -5,7 +5,7 @@ import {
   loadConfig,
   validateConfig
 } from "./configuration.mjs";
-import { loadDirectoryTree } from "./build.mjs";
+import { tree, load, loadDir, traverse } from "./build.mjs";
 
 const configuration = {
   CONFIG_FILE_NAME,
@@ -15,7 +15,10 @@ const configuration = {
 };
 
 const build = {
-  loadDirectoryTree
+  tree,
+  load,
+  loadDir,
+  traverse
 };
 
 export { configuration, build };
