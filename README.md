@@ -2,7 +2,9 @@
 
 ![Node.js CI](https://github.com/TimDaub/kloi/workflows/Node.js%20CI/badge.svg)
 
-> kloi is a tiny toolkit for building simple static sites.
+> kloi is a tiny toolkit for building simple static sites. It is an attempt at
+> implementing [React RFC
+> RSC](https://github.com/josephsavona/rfcs/blob/server-components/text/0000-server-components.md#capabilities--constraints-of-server-and-client-components)
 
 ## Requirements
 

@@ -10,7 +10,7 @@ import {
 } from "fs";
 import ava from "ava";
 
-import { loadDirectoryTree } from "../src/build.mjs";
+import { loadDirectoryTree, labelFile } from "../src/build.mjs";
 
 const test = ava.serial;
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -25,7 +25,7 @@ test.afterEach.always(t => {
 
 test("if tree folder structure is parsed correctly", async t => {
   writeFileSync(
-    `${TEST_FOLDER}/index.mjs`,
+    `${TEST_FOLDER}/index.server.mjs`,
     `
     const hello = "world";
     export default hello;
@@ -33,7 +33,7 @@ test("if tree folder structure is parsed correctly", async t => {
   );
   mkdirSync(`${TEST_FOLDER}/subdir`);
   writeFileSync(
-    `${TEST_FOLDER}/subdir/subdirfile.mjs`,
+    `${TEST_FOLDER}/subdir/subdirfile.server.mjs`,
     `
     const hello = "subdir";
     export default hello;
@@ -48,14 +48,23 @@ test("if tree folder structure is parsed correctly", async t => {
   const subDir = projectStruct.children.find(elem => elem.type === "directory");
   t.is(subDir.children.length, 1);
   const indexFile = projectStruct.children.find(
-    ({ name }) => name === "index.mjs"
+    ({ name }) => name === "index.server.mjs"
   );
   t.truthy(indexFile);
   t.true(indexFile.module === "world");
+  t.true(indexFile.label === "server");
 
   const subdirFile = subDir.children.find(
-    ({ name }) => name === "subdirfile.mjs"
+    ({ name }) => name === "subdirfile.server.mjs"
   );
   t.truthy(subdirFile);
+  t.true(subdirFile.label === "server");
   t.true(subdirFile.module === "subdir");
+});
+
+test("if matching react server and client components is possible", async t => {
+  t.true(labelFile("index.server.js") === "server");
+  t.true(labelFile("index.client.js") === "client");
+  t.throws(() => labelFile("index.bla.js"));
+  t.throws(() => labelFile("index.js"));
 });
