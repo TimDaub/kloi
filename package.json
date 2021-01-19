@@ -4,7 +4,7 @@
   "description": "kloi is a tiny toolkit for building simple static sites",
   "main": "src/index.mjs",
   "engines": {
-    "node": ">=13.2.0"
+    "node": ">=14.15.4"
   },
   "engineStrict": true,
   "scripts": {

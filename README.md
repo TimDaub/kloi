@@ -6,7 +6,7 @@
 
 ## Requirements
 
-- node version `>= 13.2.0` (ESM)
+- for node version, see [package.json](./package.json)
 
 ## Principles
 
