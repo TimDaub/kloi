@@ -9,8 +9,10 @@ import {
   rmdirSync
 } from "fs";
 import ava from "ava";
+import { Component } from "preact";
+import { html } from "htm/preact/index.js";
 
-import { loadDir, labelFile } from "../src/build.mjs";
+import { labelModule, renderModule } from "../src/build.mjs";
 
 const test = ava.serial;
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -23,48 +25,34 @@ test.afterEach.always(t => {
   writeFileSync(`${TEST_FOLDER}/.keep`, "");
 });
 
-test("if tree folder structure is parsed correctly", async t => {
-  writeFileSync(
-    `${TEST_FOLDER}/index.server.mjs`,
-    `
-    const hello = "world";
-    export default hello;
-  `
-  );
-  mkdirSync(`${TEST_FOLDER}/subdir`);
-  writeFileSync(
-    `${TEST_FOLDER}/subdir/subdirfile.server.mjs`,
-    `
-    const hello = "subdir";
-    export default hello;
-  `
-  );
-
-  const projectStruct = await loadDir(TEST_FOLDER, {
-    extensions: /\.mjs/
+test("if matching react server and client components is possible", async t => {
+  t.deepEqual(labelModule({ name: "index.server.js" }), {
+    label: "server",
+    name: "index.server.js"
   });
-  t.is(projectStruct.children.length, 2);
-
-  const subDir = projectStruct.children.find(elem => elem.type === "directory");
-  t.is(subDir.children.length, 1);
-  const indexFile = projectStruct.children.find(
-    ({ name }) => name === "index.server.mjs"
-  );
-  t.truthy(indexFile);
-  t.true(indexFile.module === "world");
-  t.true(indexFile.label === "server");
-
-  const subdirFile = subDir.children.find(
-    ({ name }) => name === "subdirfile.server.mjs"
-  );
-  t.truthy(subdirFile);
-  t.true(subdirFile.label === "server");
-  t.true(subdirFile.module === "subdir");
+  t.deepEqual(labelModule({ name: "index.client.js" }), {
+    label: "client",
+    name: "index.client.js"
+  });
+  t.throws(() => labelModule({ name: "index.bla.js" }));
+  t.throws(() => labelModule({ name: "index.js" }));
 });
 
-test("if matching react server and client components is possible", async t => {
-  t.true(labelFile("index.server.js") === "server");
-  t.true(labelFile("index.client.js") === "client");
-  t.throws(() => labelFile("index.bla.js"));
-  t.throws(() => labelFile("index.js"));
+test("rendering a valid preact class and fn component with props", async t => {
+  function FnComponent(props) {
+    return html`${props.msg}`;
+  }
+
+  class Test extends Component {
+    render() {
+      return html`
+        <span>
+          <${FnComponent} ...${this.props} />
+        </span>`;
+    }
+  }
+
+  const msg = "hello";
+  const out = await renderModule({ module: Test }, { msg });
+  t.is(out.render, `<span>${msg}</span>`);
 });

@@ -2,6 +2,9 @@
 import process from "process";
 import path from "path";
 import crypto from "crypto";
+
+import { html } from "htm/preact/index.js";
+import renderToString from "preact-render-to-string";
 import tree from "directory-tree";
 
 import { NotImplementedError } from "./errors.mjs";
@@ -10,7 +13,7 @@ export { tree };
 
 const cache = new Map();
 // TODO: Figure out if we should use "clear-module" here.
-function getNewToken(path) {
+export function getNewToken(path) {
   let count;
 
   if (cache.has(path)) {
@@ -22,18 +25,6 @@ function getNewToken(path) {
   }
 
   return `${path}?count=${count}`;
-}
-
-export function labelFile(name) {
-  const expr = new RegExp("(server|client)+", "gm");
-
-  if (expr.test(name)) {
-    return name.match(expr).pop();
-  } else {
-    throw new NotImplementedError(
-      `'Shared Components' are not yet supported. Please prepend your modules with '.client.mjs' or '.server.mjs'`
-    );
-  }
 }
 
 export async function* traverse(files) {
@@ -48,25 +39,43 @@ export async function* traverse(files) {
   }
 }
 
-export async function load(file) {
-  file.absolutePath = path.resolve(process.cwd(), file.path);
-  file.label = labelFile(file.name);
+export function labelModule(file) {
+  const expr = new RegExp("(server|client)+", "gm");
 
-  const uncachedPath = getNewToken(file.absolutePath);
-  file.module = (await import(uncachedPath)).default;
-
-  return file;
+  if (expr.test(file.name)) {
+    return {
+      ...file,
+      label: file.name.match(expr).pop()
+    };
+  } else {
+    throw new NotImplementedError(
+      `'Shared Components' are not yet supported. Please prepend your modules with '.client.mjs' or '.server.mjs'`
+    );
+  }
 }
 
-export async function loadDir(path, options) {
-  let dirTree = tree(path, options);
-  const fileIterator = await traverse(dirTree.children);
+async function loadModule(file) {
+  const absolutePath = path.resolve(process.cwd(), file.path);
+  const uncachedPath = getNewToken(absolutePath);
+  const loadedMod = (await import(uncachedPath)).default;
+  return {
+    ...file,
+    module: loadedMod
+  };
+}
 
-  let res = await fileIterator.next();
-  while (!res.done) {
-    res.value = await load(res.value);
-    res = await fileIterator.next();
-  }
+export function renderModule(file, props) {
+  const doc = html`<${file.module} ...${props} />`;
 
-  return dirTree;
+  return {
+    ...file,
+    render: renderToString(doc)
+  };
+}
+
+export async function render(file) {
+  file = await loadModule(file);
+  file = labelModule(file);
+  file = renderModule(file);
+  return file;
 }

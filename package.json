@@ -41,6 +41,9 @@
   "homepage": "https://github.com/TimDaub/kloi#readme",
   "dependencies": {
     "directory-tree": "2.2.5",
+    "htm": "3.0.4",
+    "preact": "10.5.10",
+    "preact-render-to-string": "5.1.12",
     "yup": "0.32.8"
   },
   "devDependencies": {

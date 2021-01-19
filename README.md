@@ -30,6 +30,8 @@
 
 ### Building Static Pages From A Nested Directory Structure
 
+[See test](./test/readme_test.mjs) for a live run.
+
 **kloi.config.js**
 ```js
 import { build, configuration } from "kloi";
@@ -55,13 +57,14 @@ const config = {
   const tree = build.tree(path, options);
   const fileIt = await build.traverse(tree.children);
 
+  const renderedFiles = [];
   let res = await fileIt.next();
   while (!res.done) {
-    res.value = await build.load(res.value);
+    renderedFiles.push(await build.render(res.value));
     res = await fileIt.next();
   }
 
-  console.log(tree);
+  console.info(renderedFiles);
   parentPort.postMessage("OK")
 })();
 ```
