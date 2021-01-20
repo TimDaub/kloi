@@ -59,6 +59,18 @@ export class Builder {
     return renderToString(doc);
   }
 
+  resolveOutPath(relPath) {
+    const innerSegment = path.relative(
+      this.config.directories.input.path,
+      relPath
+    );
+    return path.resolve(
+      process.cwd(),
+      this.config.directories.output.path,
+      innerSegment
+    );
+  }
+
   async render(file) {
     file.module = await this.loader.load(file.path);
     file.label = Builder.labelModule(file.name);
@@ -77,6 +89,10 @@ export class Builder {
       if (file.type === "directory") {
         files = files.concat(file.children);
       }
+
+      // NOTE: We add `outPath` in `render` as files of any type need to
+      // have it.
+      file.outPath = this.resolveOutPath(file.path);
 
       yield file;
     }

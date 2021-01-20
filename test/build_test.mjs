@@ -71,17 +71,20 @@ test("if traverse visits and yields all branches of a directory tree", async t =
   const files = [
     {
       type: "directory",
+      path: "./src/first.txt",
       name: "first",
       children: [
         {
           type: "file",
-          name: "subfile"
+          name: "subfile",
+          path: "./src/subdir/subfile.txt"
         }
       ]
     },
     {
       type: "file",
-      name: "second"
+      name: "second",
+      path: "./src/second.txt"
     }
   ];
   await quibble.esm("directory-tree", undefined, () => ({
@@ -89,15 +92,40 @@ test("if traverse visits and yields all branches of a directory tree", async t =
   }));
   const MockBuilder = (await import("../src/build.mjs")).Builder;
   t.true(typeof MockBuilder === "function");
-  const builder = new MockBuilder({ directories: { input: { path: "bla" } } });
+  const builder = new MockBuilder({
+    directories: { input: { path: "input" }, output: { path: "output" } }
+  });
 
   let it = builder.traverse("fake", "fake2");
   let head = it.next();
   t.is(head.value.type, "directory");
   t.is(head.value.name, "first");
-  t.is(head.value.children.length, 1);
-  t.is(head.value.children[0].name, "subfile");
+  t.truthy(head.value.outPath);
 
   head = it.next();
   t.is(head.value.name, "second");
+  t.truthy(head.value.outPath);
+
+  head = it.next();
+  t.is(head.value.name, "subfile");
+  t.truthy(head.value.outPath);
+});
+
+test("if resolving a file's output path is possible", t => {
+  const config = {
+    directories: {
+      input: {
+        path: "./src/pages"
+      },
+      output: {
+        path: "./dist/"
+      }
+    }
+  };
+  const builder = new Builder(config);
+
+  const file = path.resolve(config.directories.input.path, "file.txt");
+  t.is(builder.resolveOutPath(file), `${process.cwd()}/dist/file.txt`);
+  const file2 = path.resolve(config.directories.input.path, "subdir/file.txt");
+  t.is(builder.resolveOutPath(file2), `${process.cwd()}/dist/subdir/file.txt`);
 });

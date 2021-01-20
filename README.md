@@ -14,7 +14,7 @@
   hidden or inaccessible configurations. kloi is a static page generator turned
   inside-out. It's not a binary but a toolkit to build your own static site
   generator. All static pages you write are plain & valid JavaScript.
-- **["kloi"](http://schwaebisches-woerterbuch.de/default.asp?q=kloi) (schwabian
+- **"[kloi](http://schwaebisches-woerterbuch.de/default.asp?q=kloi)" (schwabian
   for "tiny" or "small")**: kloi has a small and clear code base.
 - **ESM support**: [Node
   13.2.0](https://nodejs.medium.com/announcing-core-node-js-support-for-ecmascript-modules-c5d6dc29b663)
