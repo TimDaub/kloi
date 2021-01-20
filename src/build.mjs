@@ -33,9 +33,9 @@ export async function* traverse(files) {
 
     if (file.type === "directory") {
       files = files.concat(file.children);
-    } else {
-      yield file;
     }
+
+    yield file;
   }
 }
 

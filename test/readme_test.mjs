@@ -60,7 +60,7 @@ test("if usage readme example works", async t => {
     `file://${path.resolve(__dirname, "../src/index.mjs")}`
   );
 
-  // NOTE: Make sure that errors are thrown
+  // NOTE: Here we make sure that errors are thrown
   await t.throwsAsync(
     async () => {
       const failingWorker = new Worker(

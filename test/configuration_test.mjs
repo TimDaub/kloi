@@ -8,10 +8,9 @@ import quibble from "quibble";
 
 import { ConfigError } from "../src/errors.mjs";
 import {
-  loadConfig,
   CONFIG_FILE_NAME,
   CONFIG_SCHEMA,
-  validateConfig
+  load
 } from "../src/configuration.mjs";
 
 const test = ava.serial;
@@ -24,38 +23,17 @@ test.afterEach.always(t => {
   if (existsSync(configPath)) unlinkSync(configPath);
 });
 
-test("that loading a config throws a specific error when none is available", async t => {
-  await t.throwsAsync(async () => await loadConfig("abc.config.js"), {
-    instanceOf: Error
-  });
-});
-
-test("that a regular config can be loaded", async t => {
-  const config = `
-    export default {
-      directories: {
-        pages: "./src/pages"
-      }
-    };
-  `;
-
-  const configPath = `${TEST_FOLDER}/${CONFIG_FILE_NAME}`;
-  writeFileSync(configPath, config);
-
-  const actual = await loadConfig(configPath);
-  t.assert(typeof actual === "object");
-  t.assert(actual.directories);
-  t.assert(actual.directories.pages);
-});
-
 test("that a config can be validated according to a schema", async t => {
   const config = {
     directories: {
-      pages: {
+      input: {
         path: "./src/pages",
         options: {
           extensions: /\.mjs/
         }
+      },
+      output: {
+        path: "./dist"
       }
     }
   };
@@ -66,16 +44,19 @@ test("that a config can be validated according to a schema", async t => {
 test("if config can be validated with function", async t => {
   const config = {
     directories: {
-      pages: {
+      input: {
         path: "./src/pages",
         options: {
           extensions: /\.mjs/
         }
+      },
+      output: {
+        path: "./dist"
       }
     }
   };
 
-  await validateConfig(config);
+  await load(config);
   t.pass();
 });
 
@@ -83,12 +64,32 @@ test("if incorrect config throws validation error", async t => {
   const config = {
     bogus: "hello"
   };
-  
+
   const processMock = {
-    exit: code => t.true(code === 1)
+    exit: code => t.true(code === 1) && t.pass()
   };
 
   await quibble.esm("process", processMock, processMock);
   const configuration = await import("../src/configuration.mjs");
-  await configuration.validateConfig(config);
+  await configuration.load(config, { resolvePaths: false });
+});
+
+test("if loading config resolves relative paths", async t => {
+  const config = {
+    directories: {
+      input: {
+        path: "./src/pages",
+        options: {
+          extensions: /\.mjs/
+        }
+      },
+      output: {
+        path: "./dist"
+      }
+    }
+  };
+
+  const loadedConf = await load(config);
+  t.true(path.isAbsolute(loadedConf.directories.input.path));
+  t.true(path.isAbsolute(loadedConf.directories.output.path));
 });

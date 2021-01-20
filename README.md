@@ -35,32 +35,42 @@
 **kloi.config.js**
 ```js
 import { build, configuration } from "kloi";
-import { resolve } from "path";
 /* NOTE: For internal testing, we run this in a worker_thread currently */
 import { parentPort } from "worker_threads";
+import { mkdirSync } from "fs";
 
 const config = {
   directories: {
-    pages: {
-      path: './test/virtual_project/src/pages',
+    input: {
+      path: "./test/virtual_project/src/pages",
       options: {
         extensions: /\.mjs/,
       },
     },
+    output: {
+      path: "./test/virtual_project/dist"
+    }
   },
 };
 
 (async () => {
-  await configuration.validateConfig(config);
-  const { path, options } = config.directories.pages;
+  await configuration.load(config);
+  const outDir = config.directories.output.path;
 
+  const { path, options } = config.directories.input;
   const tree = build.tree(path, options);
   const fileIt = await build.traverse(tree.children);
 
   const renderedFiles = [];
   let res = await fileIt.next();
   while (!res.done) {
-    renderedFiles.push(await build.render(res.value));
+    if (res.value.type === "directory") {
+      console.log(res.value);
+    } else {
+      const rFile = await build.render(res.value);
+      renderedFiles.push(rFile);
+    }
+
     res = await fileIt.next();
   }
 
