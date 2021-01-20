@@ -27,6 +27,7 @@ test("if usage readme example works", async t => {
   `
   );
   mkdirSync(`${TEST_FOLDER}/src/pages/subdir`);
+  mkdirSync(`${TEST_FOLDER}/src/pages/subdir/subsubdir`);
   writeFileSync(
     `${TEST_FOLDER}/src/pages/subdir/subdirfile.server.mjs`,
     `
@@ -72,10 +73,13 @@ test("if usage readme example works", async t => {
   );
 
   const worker = new Worker(new URL(`data:text/javascript,${readmeMatch}`));
+  let message;
   try {
-    await once(worker, "message");
+    [message] = await once(worker, "message");
   } catch (err) {
     console.error(err);
     t.fail();
   }
+
+  t.true(message.includes("<world></world>"));
 });

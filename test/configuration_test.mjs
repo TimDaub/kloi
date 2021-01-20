@@ -2,7 +2,7 @@
 import ava from "ava";
 import path from "path";
 import { fileURLToPath } from "url";
-import { copyFileSync, unlinkSync, existsSync, writeFileSync } from "fs";
+import { unlinkSync, existsSync } from "fs";
 import yup from "yup";
 import quibble from "quibble";
 

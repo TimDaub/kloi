@@ -9,73 +9,76 @@ import tree from "directory-tree";
 
 import { NotImplementedError } from "./errors.mjs";
 
-export { tree };
-
-const cache = new Map();
-// TODO: Figure out if we should use "clear-module" here.
-export function getNewToken(path) {
-  let count;
-
-  if (cache.has(path)) {
-    let count = cache.get(path);
-    count++;
-  } else {
-    count = 0;
-    cache.set(path, count);
+export class ModuleLoader {
+  constructor() {
+    this.cache = new Map();
   }
 
-  return `${path}?count=${count}`;
-}
+  getNewToken(path) {
+    let count;
 
-export async function* traverse(files) {
-  for (let i = 0; i < files.length; i++) {
-    const file = files[i];
-
-    if (file.type === "directory") {
-      files = files.concat(file.children);
+    if (this.cache.has(path)) {
+      let count = this.cache.get(path);
+      count++;
+    } else {
+      count = 0;
+      this.cache.set(path, count);
     }
 
-    yield file;
+    return `${path}?count=${count}`;
+  }
+
+  async load(modPath) {
+    const absolutePath = path.resolve(process.cwd(), modPath);
+    const uncachedPath = this.getNewToken(absolutePath);
+    return (await import(uncachedPath)).default;
   }
 }
 
-export function labelModule(file) {
-  const expr = new RegExp("(server|client)+", "gm");
-
-  if (expr.test(file.name)) {
-    return {
-      ...file,
-      label: file.name.match(expr).pop()
-    };
-  } else {
-    throw new NotImplementedError(
-      `'Shared Components' are not yet supported. Please prepend your modules with '.client.mjs' or '.server.mjs'`
-    );
+export class Builder {
+  constructor(config) {
+    this.config = config;
+    this.loader = new ModuleLoader();
   }
-}
 
-async function loadModule(file) {
-  const absolutePath = path.resolve(process.cwd(), file.path);
-  const uncachedPath = getNewToken(absolutePath);
-  const loadedMod = (await import(uncachedPath)).default;
-  return {
-    ...file,
-    module: loadedMod
-  };
-}
+  static labelModule(name) {
+    const expr = new RegExp("(server|client)+", "gm");
 
-export function renderModule(file, props) {
-  const doc = html`<${file.module} ...${props} />`;
+    if (expr.test(name)) {
+      return name.match(expr).pop();
+    } else {
+      throw new NotImplementedError(
+        `'Shared Components' are not yet supported. Please prepend your modules with '.client.mjs' or '.server.mjs'`
+      );
+    }
+  }
 
-  return {
-    ...file,
-    render: renderToString(doc)
-  };
-}
+  static renderModule(mod, props) {
+    const doc = html`<${mod} ...${props} />`;
 
-export async function render(file) {
-  file = await loadModule(file);
-  file = labelModule(file);
-  file = renderModule(file);
-  return file;
+    return renderToString(doc);
+  }
+
+  async render(file) {
+    file.module = await this.loader.load(file.path);
+    file.label = Builder.labelModule(file.name);
+    file.rendered = Builder.renderModule(file.module);
+
+    return file;
+  }
+
+  *traverse() {
+    const { path, options } = this.config.directories.input;
+    let files = tree(path, options).children;
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+
+      if (file.type === "directory") {
+        files = files.concat(file.children);
+      }
+
+      yield file;
+    }
+  }
 }

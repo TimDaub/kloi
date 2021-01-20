@@ -34,12 +34,11 @@
 
 **kloi.config.js**
 ```js
-import { build, configuration } from "kloi";
-/* NOTE: For internal testing, we run this in a worker_thread currently */
+import { Builder, configuration } from "kloi";
+/* IGNORE: For internal testing */
 import { parentPort } from "worker_threads";
-import { mkdirSync } from "fs";
 
-const config = {
+let config = {
   directories: {
     input: {
       path: "./test/virtual_project/src/pages",
@@ -54,28 +53,25 @@ const config = {
 };
 
 (async () => {
-  await configuration.load(config);
-  const outDir = config.directories.output.path;
+  config = await configuration.load(config);
+  const builder = new Builder(config);
+  const iterator = builder.traverse();
 
-  const { path, options } = config.directories.input;
-  const tree = build.tree(path, options);
-  const fileIt = await build.traverse(tree.children);
+  const files = [];
+  let head = iterator.next();
 
-  const renderedFiles = [];
-  let res = await fileIt.next();
-  while (!res.done) {
-    if (res.value.type === "directory") {
-      console.log(res.value);
+  while (!head.done) {
+    if (head.value.type === "directory") {
     } else {
-      const rFile = await build.render(res.value);
-      renderedFiles.push(rFile);
+      const rendered = await builder.render(head.value);
+      files.push(rendered);
     }
 
-    res = await fileIt.next();
+    head = iterator.next();
   }
 
-  console.info(renderedFiles);
-  parentPort.postMessage("OK")
+  /* IGNORE: For internal testing */
+  parentPort.postMessage(JSON.stringify(files))
 })();
 ```
 

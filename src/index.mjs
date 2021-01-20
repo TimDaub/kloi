@@ -1,6 +1,6 @@
 // @format
 import { CONFIG_FILE_NAME, CONFIG_SCHEMA, load } from "./configuration.mjs";
-import { tree, traverse, render } from "./build.mjs";
+import { Builder } from "./build.mjs";
 
 const configuration = {
   CONFIG_FILE_NAME,
@@ -9,9 +9,7 @@ const configuration = {
 };
 
 const build = {
-  tree,
-  traverse,
-  render
+  Builder
 };
 
-export { configuration, build };
+export { configuration, Builder};
