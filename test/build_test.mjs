@@ -1,7 +1,7 @@
 // @format
 import path from "path";
 import { fileURLToPath } from "url";
-import { writeFileSync, mkdirSync, rmdirSync } from "fs";
+import { existsSync, writeFileSync, mkdirSync, rmdirSync } from "fs";
 import ava from "ava";
 import { Component } from "preact";
 import { html } from "htm/preact/index.js";
@@ -71,20 +71,20 @@ test("if traverse visits and yields all branches of a directory tree", async t =
   const files = [
     {
       type: "directory",
-      path: "./src/first.txt",
+      path: "./src/first.server.mjs",
       name: "first",
       children: [
         {
           type: "file",
           name: "subfile",
-          path: "./src/subdir/subfile.txt"
+          path: "./src/subdir/subfile.server.mjs"
         }
       ]
     },
     {
       type: "file",
       name: "second",
-      path: "./src/second.txt"
+      path: "./src/second.server.mjs"
     }
   ];
   await quibble.esm("directory-tree", undefined, () => ({
@@ -111,6 +111,17 @@ test("if traverse visits and yields all branches of a directory tree", async t =
   t.truthy(head.value.outPath);
 });
 
+test("if an error is thrown when a file's path and type don't match", t => {
+  const config = {
+    output: {}
+  };
+  const builder = new Builder(config);
+  t.throws(() => builder.resolveOutPath("file.client.js", "file"));
+  t.throws(() => builder.resolveOutPath("file.js", "file"));
+  t.throws(() => builder.resolveOutPath("bin", "file"));
+  t.throws(() => builder.resolveOutPath("bin", "file"));
+});
+
 test("if resolving a file's output path is possible", t => {
   const config = {
     directories: {
@@ -118,14 +129,62 @@ test("if resolving a file's output path is possible", t => {
         path: "./src/pages"
       },
       output: {
-        path: "./dist/"
+        path: "./dist/",
+        extension: ".html"
       }
     }
   };
   const builder = new Builder(config);
 
-  const file = path.resolve(config.directories.input.path, "file.txt");
-  t.is(builder.resolveOutPath(file), `${process.cwd()}/dist/file.txt`);
-  const file2 = path.resolve(config.directories.input.path, "subdir/file.txt");
-  t.is(builder.resolveOutPath(file2), `${process.cwd()}/dist/subdir/file.txt`);
+  const file = path.resolve(config.directories.input.path, "file.server.mjs");
+  t.is(builder.resolveOutPath(file, "file"), `${process.cwd()}/dist/file.html`);
+  const file2 = path.resolve(
+    config.directories.input.path,
+    "subdir/file.server.mjs"
+  );
+  t.is(
+    builder.resolveOutPath(file2, "file"),
+    `${process.cwd()}/dist/subdir/file.html`
+  );
+
+  const dir = path.resolve(config.directories.input.path, "dir");
+  t.is(builder.resolveOutPath(dir, "directory"), `${process.cwd()}/dist/dir`);
+});
+
+test("that write function throws when no dist file exists", t => {
+  const config = {
+    directories: {
+      output: {
+        path: "./dist/"
+      }
+    }
+  };
+  const builder = new Builder(config);
+  t.throws(() => builder.write(), { instanceOf: Error });
+});
+
+test("that both directories and files can be written", t => {
+  const distDir = `${TEST_FOLDER}/dist/`;
+  mkdirSync(distDir);
+  t.true(existsSync(distDir));
+  const config = {
+    directories: {
+      output: {
+        path: "test/virtual_project/dist/"
+      }
+    }
+  };
+
+  const builder = new Builder(config);
+  const outPath1 = `${TEST_FOLDER}/dist/subdir`;
+  builder.write({ type: "directory", outPath: outPath1 });
+  t.true(existsSync(outPath1));
+
+  const outPath2 = `${TEST_FOLDER}/dist/index.html`;
+  builder.write({
+    type: "file",
+    outPath: outPath2,
+    rendered: "<p>hello world</p>"
+  });
+  t.true(existsSync(outPath2));
 });

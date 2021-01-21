@@ -2,7 +2,7 @@
 import ava from "ava";
 import path from "path";
 import { fileURLToPath } from "url";
-import { rmdirSync, readFileSync, writeFileSync, mkdirSync } from "fs";
+import { rmdirSync, readFileSync, writeFileSync, mkdirSync, existsSync } from "fs";
 import { Worker } from "worker_threads";
 import { once } from "events";
 
@@ -18,6 +18,7 @@ test.afterEach.always(t => {
 
 test("if usage readme example works", async t => {
   mkdirSync(`${TEST_FOLDER}/src`);
+  mkdirSync(`${TEST_FOLDER}/dist`);
   mkdirSync(`${TEST_FOLDER}/src/pages`);
   writeFileSync(
     `${TEST_FOLDER}/src/pages/index.server.mjs`,
@@ -81,5 +82,6 @@ test("if usage readme example works", async t => {
     t.fail();
   }
 
-  t.true(message.includes("<world></world>"));
+  t.true(existsSync(`${TEST_FOLDER}/dist/index.html`));
+  t.true(existsSync(`${TEST_FOLDER}/dist/subdir/subdirfile.html`));
 });

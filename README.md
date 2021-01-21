@@ -47,7 +47,8 @@ let config = {
       },
     },
     output: {
-      path: "./test/virtual_project/dist"
+      path: "./test/virtual_project/dist",
+      extension: ".html"
     }
   },
 };
@@ -57,21 +58,20 @@ let config = {
   const builder = new Builder(config);
   const iterator = builder.traverse();
 
-  const files = [];
   let head = iterator.next();
-
   while (!head.done) {
-    if (head.value.type === "directory") {
-    } else {
-      const rendered = await builder.render(head.value);
-      files.push(rendered);
+    let file = head.value;
+
+    if (file.type === "file") {
+      file = await builder.render(file);
     }
 
+    builder.write(file);
     head = iterator.next();
   }
 
   /* IGNORE: For internal testing */
-  parentPort.postMessage(JSON.stringify(files))
+  parentPort.postMessage("success")
 })();
 ```
 

@@ -2,6 +2,7 @@
 import process from "process";
 import path from "path";
 import crypto from "crypto";
+import { existsSync, mkdirSync, writeFileSync } from "fs";
 
 import { html } from "htm/preact/index.js";
 import renderToString from "preact-render-to-string";
@@ -59,16 +60,37 @@ export class Builder {
     return renderToString(doc);
   }
 
-  resolveOutPath(relPath) {
-    const innerSegment = path.relative(
+  resolveOutPath(relPath, type) {
+    const { output } = this.config.directories;
+    let internalPath = path.relative(
       this.config.directories.input.path,
       relPath
     );
-    return path.resolve(
-      process.cwd(),
-      this.config.directories.output.path,
-      innerSegment
-    );
+
+    if (type === "directory") {
+      return path.resolve(process.cwd(), output.path, internalPath);
+    } else if (type === "file") {
+      const extension = ".server.mjs";
+      if (!relPath.includes(extension)) {
+        throw new NotImplementedError(
+          `Cannot resolve path "${relPath}" for file of type: "${type}". At this point, only files of type "file" with the extension "${extension}" can be resolved.`
+        );
+      }
+
+      const fileName = path.basename(internalPath, extension);
+      internalPath = internalPath.replace(fileName + extension, "");
+
+      return path.resolve(
+        process.cwd(),
+        output.path,
+        internalPath,
+        fileName + output.extension
+      );
+    } else {
+      throw new NotImplementedError(
+        `Cannot resolve path "${relPath}" with type: "${type}"`
+      );
+    }
   }
 
   async render(file) {
@@ -77,6 +99,21 @@ export class Builder {
     file.rendered = Builder.renderModule(file.module);
 
     return file;
+  }
+
+  write(file) {
+    if (!existsSync(this.config.directories.output.path)) {
+      throw new Error(
+        "Output directory doesn't exist. Please create it first before trying to write files."
+      );
+    }
+
+    // TODO: If file has label "client" we should throw here
+    if (file.type === "directory") {
+      mkdirSync(file.outPath);
+    } else {
+      writeFileSync(file.outPath, file.rendered);
+    }
   }
 
   *traverse() {
@@ -92,7 +129,7 @@ export class Builder {
 
       // NOTE: We add `outPath` in `render` as files of any type need to
       // have it.
-      file.outPath = this.resolveOutPath(file.path);
+      file.outPath = this.resolveOutPath(file.path, file.type);
 
       yield file;
     }

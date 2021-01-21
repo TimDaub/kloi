@@ -1,5 +1,6 @@
 // @format
 import ava from "ava";
+import process from "process";
 import path from "path";
 import { fileURLToPath } from "url";
 import { unlinkSync, existsSync } from "fs";
@@ -21,6 +22,7 @@ const TEST_FOLDER = path.resolve(__dirname, "./virtual_project");
 test.afterEach.always(t => {
   const configPath = `${TEST_FOLDER}/${CONFIG_FILE_NAME}`;
   if (existsSync(configPath)) unlinkSync(configPath);
+  quibble.reset();
 });
 
 test("that a config can be validated according to a schema", async t => {
@@ -33,7 +35,8 @@ test("that a config can be validated according to a schema", async t => {
         }
       },
       output: {
-        path: "./dist"
+        path: "./dist",
+        extension: ".html"
       }
     }
   };
@@ -51,7 +54,8 @@ test("if config can be validated with function", async t => {
         }
       },
       output: {
-        path: "./dist"
+        path: "./dist",
+        extension: ".html"
       }
     }
   };
@@ -72,6 +76,35 @@ test("if incorrect config throws validation error", async t => {
   await quibble.esm("process", processMock, processMock);
   const configuration = await import("../src/configuration.mjs");
   await configuration.load(config, { resolvePaths: false });
+});
+
+test("if output extensions are validated", async t => {
+  let config = {
+    directories: {
+      input: {
+        path: "./src/pages",
+        options: {
+          extensions: /\.mjs/
+        }
+      },
+      output: {
+        path: "./dist",
+        extension: "html"
+      }
+    }
+  };
+
+  const processMock = {
+    exit: code => t.true(code === 1),
+    cwd: process.cwd
+  };
+
+  await quibble.esm("process", processMock, processMock);
+  const configuration = await import("../src/configuration.mjs");
+  await configuration.load(config);
+
+  config.directories.output.extension = "a.b.c";
+  await configuration.load(config);
 });
 
 test("if loading config resolves relative paths", async t => {

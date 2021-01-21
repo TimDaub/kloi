@@ -17,7 +17,11 @@ const CONFIG_SCHEMA = yup.object().shape({
       })
     }),
     output: yup.object().shape({
-      path: yup.string().required()
+      path: yup.string().required(),
+      extension: yup
+        .string()
+        .matches(/\.[A-Za-z]+/)
+        .required()
     })
   })
 });

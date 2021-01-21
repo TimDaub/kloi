@@ -15,7 +15,7 @@
       "--loader=quibble"
     ],
     "files": [
-      "!test/virtual_project/*"
+      "!test/virtual_project/**/*"
     ]
   },
   "repository": {
