@@ -24,19 +24,24 @@
 
 ## Installation
 
-[WIP]
+```bash
+$ npm i --save-dev kloi
+```
+
+Check the "Usage" section below for getting started.
 
 ## Usage
 
 ### Building Static Pages From A Nested Directory Structure
 
-[See test](./test/readme_test.mjs) for a live run.
+[See test](./test/readme_test.mjs) for a live run. Or the
+[`kloi-sample-project`](https://github.com/TimDaub/kloi-sample-project) for a
+template repository.
 
 **kloi.config.js**
 ```js
 import { Builder, configuration } from "kloi";
-/* IGNORE: For internal testing */
-import { parentPort } from "worker_threads";
+import { parentPort } from "worker_threads"; /* IGNORE AND DELETE */
 
 let config = {
   directories: {
@@ -70,14 +75,16 @@ let config = {
     head = iterator.next();
   }
 
-  /* IGNORE: For internal testing */
-  parentPort.postMessage("success")
+  parentPort.postMessage("success") /* IGNORE AND DELETE */
 })();
 ```
 
 ## Changelog
 
-[WIP]
+### 0.0.1
+
+- Initial release of kloi. It can render a directory tree of `*.server.mjs`
+  files to a directory tree of `*.html` files using preact.
 
 ## License
 

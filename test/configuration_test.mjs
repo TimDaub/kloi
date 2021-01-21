@@ -117,7 +117,8 @@ test("if loading config resolves relative paths", async t => {
         }
       },
       output: {
-        path: "./dist"
+        path: "./dist",
+        extension: ".html"
       }
     }
   };
