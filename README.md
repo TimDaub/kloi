@@ -91,6 +91,12 @@ let config = {
 
 ## Changelog
 
+### 0.0.2
+
+- Add `copyAssets` function and `config.directories.input.assets.path` (in
+  config.mjs), allow users to define a static assets directory structure that
+  is copied to the output path.
+
 ### 0.0.1
 
 - Initial release of kloi. It can render a directory tree of `*.server.mjs`
