@@ -50,6 +50,9 @@ let config = {
       options: {
         extensions: /\.mjs/,
       },
+      assets: {
+        path: "./test/virtual_project/src/pages/assets/",
+      },
     },
     output: {
       path: "./test/virtual_project/dist",
@@ -75,9 +78,16 @@ let config = {
     head = iterator.next();
   }
 
+  builder.copyAssets();
+
   parentPort.postMessage("success") /* IGNORE AND DELETE */
 })();
 ```
+
+#### Limitations
+
+- `config.directories.input.assets.path` must be a subdir of
+  `config.directories.input.path`.
 
 ## Changelog
 

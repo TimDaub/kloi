@@ -12,4 +12,4 @@ const build = {
   Builder
 };
 
-export { configuration, Builder};
+export { configuration, Builder };

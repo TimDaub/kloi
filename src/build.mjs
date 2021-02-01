@@ -7,6 +7,7 @@ import { existsSync, mkdirSync, writeFileSync } from "fs";
 import { html } from "htm/preact/index.js";
 import renderToString from "preact-render-to-string";
 import tree from "directory-tree";
+import { copySync } from "fs-extra";
 
 import { NotImplementedError } from "./errors.mjs";
 
@@ -52,6 +53,13 @@ export class Builder {
         `'Shared Components' are not yet supported. Please prepend your modules with '.client.mjs' or '.server.mjs'`
       );
     }
+  }
+
+  copyAssets() {
+    const { assets } = this.config.directories.input;
+    const assetsPath = path.resolve(process.cwd(), assets.path);
+    const outPath = this.resolveOutPath(assetsPath, "directory");
+    copySync(assetsPath, outPath, { overwrite: true, errorOnExist: false });
   }
 
   static renderModule(mod, props) {

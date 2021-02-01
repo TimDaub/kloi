@@ -188,3 +188,70 @@ test("that both directories and files can be written", t => {
   });
   t.true(existsSync(outPath2));
 });
+
+test("recursively copying a folder structure using asset property", t => {
+  mkdirSync(`${TEST_FOLDER}/src`);
+  mkdirSync(`${TEST_FOLDER}/dist`);
+  mkdirSync(`${TEST_FOLDER}/src/pages`);
+  mkdirSync(`${TEST_FOLDER}/src/pages/assets/`);
+  mkdirSync(`${TEST_FOLDER}/src/pages/assets/foldertocopy`);
+  writeFileSync(
+    `${TEST_FOLDER}/src/pages/assets/foldertocopy/file.txt`,
+    `hello`
+  );
+
+  const config = {
+    directories: {
+      input: {
+        assets: {
+          path: `${TEST_FOLDER}/src/pages/assets`
+        },
+        path: `${TEST_FOLDER}/src/pages/`
+      },
+      output: {
+        path: `${TEST_FOLDER}/dist/`,
+        extension: ".html"
+      }
+    }
+  };
+
+  const builder = new Builder(config);
+  builder.copyAssets();
+  t.true(existsSync(`${TEST_FOLDER}/dist/assets/foldertocopy`));
+  t.true(existsSync(`${TEST_FOLDER}/dist/assets/foldertocopy/file.txt`));
+});
+
+test("if recursive dir structure copy throws errors when structure exists", t => {
+  mkdirSync(`${TEST_FOLDER}/src`);
+  mkdirSync(`${TEST_FOLDER}/dist`);
+  mkdirSync(`${TEST_FOLDER}/src/pages`);
+  mkdirSync(`${TEST_FOLDER}/src/pages/assets/`);
+  mkdirSync(`${TEST_FOLDER}/src/pages/assets/foldertocopy`);
+  writeFileSync(
+    `${TEST_FOLDER}/src/pages/assets/foldertocopy/file.txt`,
+    `hello`
+  );
+
+  const config = {
+    directories: {
+      input: {
+        assets: {
+          path: `${TEST_FOLDER}/src/pages/assets`
+        },
+        path: `${TEST_FOLDER}/src/pages/`
+      },
+      output: {
+        path: `${TEST_FOLDER}/dist/`,
+        extension: ".html"
+      }
+    }
+  };
+
+  const builder = new Builder(config);
+  builder.copyAssets();
+  t.true(existsSync(`${TEST_FOLDER}/dist/assets/foldertocopy`));
+  t.true(existsSync(`${TEST_FOLDER}/dist/assets/foldertocopy/file.txt`));
+
+  builder.copyAssets();
+  t.pass();
+});

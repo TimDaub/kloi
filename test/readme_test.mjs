@@ -2,7 +2,13 @@
 import ava from "ava";
 import path from "path";
 import { fileURLToPath } from "url";
-import { rmdirSync, readFileSync, writeFileSync, mkdirSync, existsSync } from "fs";
+import {
+  rmdirSync,
+  readFileSync,
+  writeFileSync,
+  mkdirSync,
+  existsSync
+} from "fs";
 import { Worker } from "worker_threads";
 import { once } from "events";
 
@@ -20,6 +26,12 @@ test("if usage readme example works", async t => {
   mkdirSync(`${TEST_FOLDER}/src`);
   mkdirSync(`${TEST_FOLDER}/dist`);
   mkdirSync(`${TEST_FOLDER}/src/pages`);
+  mkdirSync(`${TEST_FOLDER}/src/pages/assets/`);
+  mkdirSync(`${TEST_FOLDER}/src/pages/assets/foldertocopy`);
+  writeFileSync(
+    `${TEST_FOLDER}/src/pages/assets/foldertocopy/file.txt`,
+    `hello`
+  );
   writeFileSync(
     `${TEST_FOLDER}/src/pages/index.server.mjs`,
     `
@@ -84,4 +96,7 @@ test("if usage readme example works", async t => {
 
   t.true(existsSync(`${TEST_FOLDER}/dist/index.html`));
   t.true(existsSync(`${TEST_FOLDER}/dist/subdir/subdirfile.html`));
+
+  t.true(existsSync(`${TEST_FOLDER}/dist/assets/foldertocopy`));
+  t.true(existsSync(`${TEST_FOLDER}/dist/assets/foldertocopy/file.txt`));
 });
