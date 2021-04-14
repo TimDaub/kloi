@@ -91,6 +91,12 @@ let config = {
 
 ## Changelog
 
+### 0.1.0
+
+- breaking change: `new Builder(config).write(file)` isn't throwing anymore
+  if `file.type === "directory"` and the path at `file.outPath` already
+  exists.
+
 ### 0.0.2
 
 - Add `copyAssets` function and `config.directories.input.assets.path` (in
