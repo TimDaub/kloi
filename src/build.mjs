@@ -118,7 +118,9 @@ export class Builder {
 
     // TODO: If file has label "client" we should throw here
     if (file.type === "directory") {
-      mkdirSync(file.outPath);
+      if (!existsSync(file.outPath)) {
+        mkdirSync(file.outPath);
+      }
     } else {
       writeFileSync(file.outPath, file.rendered);
     }

@@ -163,6 +163,29 @@ test("that write function throws when no dist file exists", t => {
   t.throws(() => builder.write(), { instanceOf: Error });
 });
 
+test("that write function is safe for writing a directory when it already exists", t => {
+  const distDir = `${TEST_FOLDER}/dist`;
+  mkdirSync(distDir);
+  t.true(existsSync(distDir));
+  const config = {
+    directories: {
+      output: {
+        path: "test/virtual_project/dist/"
+      }
+    }
+  };
+  const testDir = `${distDir}/test`;
+  mkdirSync(testDir);
+  t.true(existsSync(testDir));
+
+  const builder = new Builder(config);
+  builder.write({
+    type: "directory",
+    outPath: testDir
+  });
+  t.pass();
+});
+
 test("that both directories and files can be written", t => {
   const distDir = `${TEST_FOLDER}/dist/`;
   mkdirSync(distDir);
