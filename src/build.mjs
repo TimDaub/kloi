@@ -128,8 +128,13 @@ export class Builder {
 
   *traverse() {
     const { path, options } = this.config.directories.input;
-    let files = tree(path, options).children;
+    const fileTree = tree(path, options);
 
+    if (!fileTree) {
+      throw new Error(`Input directory "${path}" contains no files`);
+    }
+
+    let files = fileTree.children;
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
 
