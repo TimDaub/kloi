@@ -8,14 +8,16 @@
   },
   "engineStrict": true,
   "scripts": {
-    "test": "ava --verbose --serial"
+    "test": "ava --node-arguments=\"--no-warnings\" --verbose --serial"
   },
   "ava": {
     "nodeArguments": [
       "--loader=quibble"
     ],
     "files": [
-      "!test/virtual_project/**/*"
+      "!test/cases/**/project/**/*",
+      "!test/virtual_project/**/*",
+      "!**/kloi.config.mjs"
     ]
   },
   "repository": {
@@ -43,6 +45,9 @@
     "directory-tree": "2.2.5",
     "fs-extra": "9.1.0",
     "htm": "3.0.4",
+    "imagemin": "8.0.0",
+    "imagemin-jpegtran": "7.0.0",
+    "imagemin-pngquant": "9.0.2",
     "preact": "10.5.10",
     "preact-render-to-string": "5.1.12",
     "recursive-copy": "2.0.11",

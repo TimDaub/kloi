@@ -50,6 +50,10 @@ let config = {
       options: {
         extensions: /\.mjs/,
       },
+      images: {
+        input: "./src/images/*.{jpg,png}",
+        output: "./dist/images"
+      },
       assets: {
         path: "./test/virtual_project/src/pages/assets/",
       },

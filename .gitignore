@@ -1,3 +1,4 @@
 node_modules
 test/virtual_project/*
 !test/virtual_project/.keep
+.DS_Store

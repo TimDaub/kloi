@@ -8,6 +8,9 @@ import { html } from "htm/preact/index.js";
 import renderToString from "preact-render-to-string";
 import tree from "directory-tree";
 import { copySync } from "fs-extra";
+import imagemin from "imagemin";
+import imageminJpegtran from "imagemin-jpegtran";
+import imageminPngquant from "imagemin-pngquant";
 
 import { NotImplementedError } from "./errors.mjs";
 
@@ -55,11 +58,31 @@ export class Builder {
     }
   }
 
-  copyAssets() {
+  async copyAssets() {
     const { assets } = this.config.directories.input;
     const assetsPath = path.resolve(process.cwd(), assets.path);
     const outPath = this.resolveOutPath(assetsPath, "directory");
     copySync(assetsPath, outPath, { overwrite: true, errorOnExist: false });
+
+    await this.optimizeImages();
+  }
+
+  async optimizeImages() {
+    const { images } = this.config.directories.input;
+
+    if (images) {
+      const { input, output } = images;
+
+      await imagemin([input], {
+        destination: output,
+        plugins: [
+          imageminJpegtran(),
+          imageminPngquant({
+            quality: [0.6, 0.8]
+          })
+        ]
+      });
+    }
   }
 
   static renderModule(mod, props) {
