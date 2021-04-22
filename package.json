@@ -1,6 +1,6 @@
 {
   "name": "kloi",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "kloi is a tiny toolkit for building simple static sites",
   "main": "src/index.mjs",
   "engines": {

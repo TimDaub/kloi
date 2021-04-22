@@ -95,6 +95,15 @@ let config = {
 
 ## Changelog
 
+### 0.2.0
+
+- Breaking change: `traverse` now throws when `directories.input.path` is
+  empty.
+- `directories.input.images` can point to a folder of images (`.png` and
+  `.jpg`) that will be web-optimized using
+  [imagemin](https://github.com/imagemin/imagemin).
+
+
 ### 0.1.0
 
 - breaking change: `new Builder(config).write(file)` isn't throwing anymore
